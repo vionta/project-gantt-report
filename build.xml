@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project-gantt-report" basedir="." default="build">
+
+  <!-- Arousa Configuration directory -->
+  <property name="config.dir" value="conf"></property>
+
+  <!-- Main build properties -->
+  <property file="${config.dir}/build.properties" ></property>
+
+  <!-- Arousa build properties -->  
+  <import file="${config.dir}/arousa-build.xml" />
+
+  <!-- Xproc Import III  -->
+  <import file="${config.dir}/xproc.xml" /> 
+  
+  <target name="help"  >
+    <echo>
+      Main Targets : clean, build 
+    </echo>
+  </target>
+
+  <target name="clean"  >
+    <echo>
+      Cleaning ....... (add your cleaning steps here)
+    </echo>
+    <delete dir="build" failonerror="false" />
+  </target>
+  
+  <target name="build" depends="clean" >
+    <echo>
+      Building  ....... (add your xproc/xslt/etc. steps here)
+    </echo>
+    <!-- Simple Xslt example........... -->
+    <xslt style="src/transformations/xsl/gant-diagram-report.xsl"
+	  basedir="src/test/data"
+	  extension=".svg"
+	  destdir="build" >
+
+    </xslt>
+    <!-- Directory Xslt example -->
+    <!-- XProc 3.0 Example........... 
+    <echo>Running a simple xproc file</echo>
+    <xproc-src src="src/xpl/hello.xpl" />
+    <echo>Running a simple task report on this build file</echo>
+    <xproc doc="build.xml" src="src/xpl/build-report.xpl" />
+    -->
+  </target>
+  
+  <target name="package" >
+    <echo>Distributing project as an arousa dependency</echo>
+    <antcall target="arousa-package" />
+  </target>
+
+  <target name="dist" >
+    <echo>Distributing project as an arousa dependency</echo>
+    <antcall target="arousa-package" />
+    <antcall target="arousa-publish-dependency" />
+  </target>
+</project>
+
