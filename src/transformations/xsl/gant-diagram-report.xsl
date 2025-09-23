@@ -28,13 +28,13 @@
       <m name="AGO" key="08" days="31" next="09" plusYear3="0"/>
       <m name="SEPT" key="09" days="30" next="10" plusYear3="0"/>
       <m name="OCT" key="10" days="31" next="11" plusYear3="0"/>
-      <m name="NOV" key="11" days="30" next="12" plusYear3="1"/>
+      <m name="NOV" key="11" days="30" next="12" plusYear3="0"/>
       <m name="DIC" key="12" days="31" next="01" plusYear3="1"/>
     </months>
   </xsl:variable>
 
   <xsl:param name="mainWidth" select="800" /> 
-  <xsl:param name="mainHeight" select="count(//task) * 30" />
+  <xsl:param name="mainHeight" select="count(//*:task) * 50  + 60" />
   <xsl:param name="minDate"
 	     select="xsd:date(sort(//initDate/text())[1])" />
   <xsl:param name="startMonth"
@@ -63,9 +63,9 @@
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
 	xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-	width="{$mainWidth}px"
+	width="{$mainWidth + 100}px"
 	height="{$mainHeight}px"
-	viewBox="0 0 {$mainWidth} {$mainHeight}"
+	viewBox="0 0 {$mainWidth + 100} {$mainHeight}"
 	version="1.1"
 	>
 
@@ -78,10 +78,8 @@
       <svg:g id="bluebar">
 	<xsl:call-template name="background-lines" />
 	<xsl:call-template name="main-ruler" />
-	<xsl:call-template name="current-date-mark" />
-	
+	<xsl:call-template name="current-date-mark" />	
 	<xsl:apply-templates/>
-	
       </svg:g>
     </svg>   
   </xsl:template>
@@ -116,6 +114,21 @@
 	  x="{$taskStart}" 
 	  y="{(count(preceding-sibling::*) + 1)*40 + 90}" />
 
+      <xsl:choose>
+	<xsl:when test="(timming/advance > 0) and (100 >= timming/advance)" >
+	  <svg:rect
+	      style="opacity:0.744;fill:#449044;fill-opacity:1;stroke:none;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+	      id="meses"
+	      width="{$taskWidth * (timming/advance div 100)}"
+	      height="6"
+	      x="{$taskStart}" 
+	      y="{(count(preceding-sibling::*) + 1)*40 + 90 + 4}" />
+	</xsl:when>
+	
+	<xsl:otherwise>
+	</xsl:otherwise>
+      </xsl:choose>
+
       <svg:text
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:normal;font-size:8.75px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000033;fill-opacity:1;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
@@ -128,7 +141,7 @@
 
     </xsl:if>
 
-    <!-- ............. Caso alternativo .............. -->
+    <!-- ............. Caso alternativo : Sin fecha .............. -->
     <xsl:if
 	test="not( ./timming/initDate/text()!='' )
 	      or not(./timming/endDate/text() != '' )" >
@@ -142,8 +155,10 @@
 	  >	
 	<xsl:value-of select="name/text()" ></xsl:value-of>
       </svg:text>
+
     </xsl:if>
 
+    
     <svg:path
 	style="opacity:0.5;fill:#006e18;fill-opacity:1;stroke:none;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
 	d="m {(100.02967 + (4 * @days))} ,58.43359 c -5.28223,-2e-4 -9.56437,3.87688 -9.56412,8.65944 -0.0452,2.25444 0.57853,3.52104 1.18588,4.81263 l 8.33371,11.34483 8.16237,-11.34483 c 0.91804,-1.58432 1.44089,-2.83345 1.44342,-4.81263 2.5e-4,-4.78155 -4.28015,-8.65822 -9.56126,-8.65944 z"
@@ -196,7 +211,7 @@
     <svg:rect
 	style="opacity:1;fill:#708ade;fill-opacity:1;stroke:none;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
 	id="meses"
-	width="{$mainWidth - 20}"
+	width="{$mainWidth}"
 	height="14"
 	x="10.25478" 
 	y="86.31613" />
@@ -247,7 +262,7 @@
 	  x="{$shift * $dayFactor}" 
 	  y="10" />
       <xsl:variable name="current-month-shift" select=" ($startMonth + round($shift div 30)) " />
-      <xsl:variable name="current-month" select="(number($current-month-shift) -  (floor($current-month-shift div 12 ) * 12)) " />
+      <xsl:variable name="current-month" select="(number($current-month-shift) - (floor($current-month-shift div 12 ) * 12)) " />
       <svg:text
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:bold;font-size:9.75px;line-height:100%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#b8b2a5;fill-opacity:0.6;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
@@ -258,6 +273,20 @@
 	<xsl:value-of
 	    select="$months//m[$current-month]/@name" ></xsl:value-of>
       </svg:text>
+      
+      <xsl:if test=" $current-month = 0" >
+	
+      <svg:text
+	  xml:space="preserve"
+	  style="font-style:normal;font-weight:bold;font-size:9.75px;line-height:100%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#b8b2a5;fill-opacity:0.6;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+	  x="{($shift * $dayFactor) }" 
+	  y="20"
+	  id="m-namet{$current-month}"
+	  >
+	<xsl:value-of
+	    select="$months//m[12]/@name" ></xsl:value-of>
+      </svg:text>
+      </xsl:if>
       <xsl:call-template name="month-line-mark" >
 	<xsl:with-param name="shift" select="($shift + 30)" />
       </xsl:call-template>
