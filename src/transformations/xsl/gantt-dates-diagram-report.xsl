@@ -33,6 +33,9 @@
     </months>
   </xsl:variable>
 
+
+  <xsl:param name="right-margin" select="300" /> 
+
   <xsl:param name="mainWidth" select="800 + 10" /> 
   <xsl:param name="minDate"
 	     select="xsd:date(sort(//initDate/text())[1])" />
@@ -69,9 +72,9 @@
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
 	xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-	width="{$mainWidth + 100}px"
+	width="{$mainWidth + 100 + $right-margin}px"
 	height="{$mainHeight}px"
-	viewBox="0 0 {$mainWidth + 100} {$mainHeight}"
+	viewBox="0 0 {$mainWidth + 100 + $right-margin} {$mainHeight}"
 	version="1.1"
 	>
 
@@ -95,6 +98,9 @@
       ......... TASK ...........
   -->
   <xsl:template match="task" >
+    
+    <xsl:variable name="parent-tasks" select="count(./parent::*:task)" />
+    <xsl:variable name="previous-tasks-count" select=" count(preceding-sibling::task) " />
 
     <!-- ............ Con Fecha ............... -->
     <xsl:if
@@ -121,7 +127,7 @@
 	  width="{$taskWidth}"
 	  height="14"
 	  x="{$taskStart + $left-side-panel}" 
-	  y="{(count(preceding-sibling::*) + 1)* $line-height + $top-panel}" />
+	  y="{($previous-tasks-count + 1)* $line-height + $top-panel}" />
 
       <xsl:choose>
 	<xsl:when test="(timming/advance > 0) and (100 >= timming/advance)" >
@@ -131,7 +137,7 @@
 	      width="{$taskWidth * (timming/advance div 100)}"
 	      height="6"
 	      x="{$taskStart + $left-side-panel}" 
-	      y="{(count(preceding-sibling::*) + 1)* $line-height + $top-panel + 4}" />
+	      y="{($previous-tasks-count + 1)* $line-height + $top-panel + 4}" />
 	</xsl:when>
 	
 	<xsl:otherwise>
@@ -143,25 +149,30 @@
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:bold;font-size:12px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000033;fill-opacity:1;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
 	  x="{$taskStart - 5 + $left-side-panel}"
-	  y="{(count(preceding-sibling::*) + 1)* $line-height + $top-panel - 5}"
+	  y="{($previous-tasks-count + 1)* $line-height + $top-panel - 5}"
 	  id="text{@days}{count(preceding-sibling::*)} "
 	  >	
 	<xsl:value-of select="name/text()" ></xsl:value-of>
       </svg:text>
+
+
+      <!--
+	  + (5 * $parent-tasks)
+      -->
       
       <svg:text
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:normal;font-size:12px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000033;fill-opacity:1;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
 	  x="15"
-	  y="{(count(preceding-sibling::*) + 1)* $line-height + $top-panel - 5}"
+	  y="{( $previous-tasks-count + 1)* $line-height + $top-panel - 5}"
 	  id="text{@days}{count(preceding-sibling::*)} "
-	  ><xsl:value-of select="name/text()" /></svg:text>
+	  ><xsl:value-of select="name/text()" /><xsl:value-of select="$parent-tasks" /></svg:text>
 
       <svg:text
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:normal;font-size:9px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#121233;fill-opacity:1;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
 	  x="15"
-	  y="{(count(preceding-sibling::*) + 1.5 ) * $line-height + $top-panel -5 }"
+	  y="{( $previous-tasks-count + 1.5 ) * $line-height + $top-panel -5 }"
 	  id="text{@days}{count(preceding-sibling::*)} "
 	  ><xsl:value-of select="substring(timming/initDate/text(), 6, 10)" ></xsl:value-of>
       </svg:text>
@@ -170,7 +181,7 @@
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:normal;font-size:9px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#121233;fill-opacity:1;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
 	  x="40"
-	  y="{(count(preceding-sibling::*) + 1.5 ) * $line-height + $top-panel - 5}"
+	  y="{( $previous-tasks-count + 1.5 ) * $line-height + $top-panel - 5}"
 	  id="text{@days}{count(preceding-sibling::*)} "
 	  >- <xsl:value-of select="substring(timming/endDate/text(), 6,10)" ></xsl:value-of>
       </svg:text>
@@ -179,7 +190,7 @@
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:normal;font-size:9px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#121233;fill-opacity:1;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
 	  x="65"
-	  y="{(count(preceding-sibling::*) + 1.5 ) * $line-height +  $top-panel - 5}"
+	  y="{( $previous-tasks-count + 1.5 ) * $line-height +  $top-panel - 5}"
 	  id="text{@days}{count(preceding-sibling::*)} "
 	  > 
 	<xsl:if test="boolean(timming/advance/text())" >
@@ -198,7 +209,7 @@
 	  xml:space="preserve"
 	  style="font-style:normal;font-weight:bold;font-size:12px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#666666;fill-opacity:0.7;stroke:solid;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
 	  x="20"
-	  y="{(count(preceding-sibling::*) + 1)* $line-height  +  $top-panel - 5 }"
+	  y="{(count(preceding-sibling::*)  + 1)* $line-height  +  $top-panel - 5 }"
 	  id="text{@days}{count(preceding-sibling::*)} "
 	  >	
 	<xsl:value-of select="name/text()" ></xsl:value-of>
@@ -217,6 +228,7 @@
 	>
     </svg:path>
 
+    <xsl:apply-templates select="./task" />
   </xsl:template>
 
 
@@ -259,7 +271,7 @@
     <svg:rect
 	style="opacity:1;fill:#708ade;fill-opacity:1;stroke:none;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
 	id="meses"
-	width="{$mainWidth + $left-side-panel}"
+	width="{$mainWidth + $left-side-panel + $right-margin - 20}"
 	height="14"
 	x="10.25478" 
 	y="86.31613" />
@@ -315,7 +327,7 @@
 	  height="{$mainHeight}"
 	  x="{($shift * $dayFactor) + $left-side-panel + 10}" 
 	  y="10" />
-      <xsl:variable name="current-month-shift" select=" ($startMonth + round($shift div 30.5)) " />
+      <xsl:variable name="current-month-shift" select=" ($startMonth + round($shift div 30.512)) " />
       <xsl:variable name="current-month" select="(number($current-month-shift) - (floor($current-month-shift div 12 ) * 12)) " />
       <svg:text
 	  xml:space="preserve"
@@ -393,7 +405,7 @@
       <svg:rect
 	  style="opacity:1;fill:#f6f2ff;fill-opacity:1;stroke:none;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
 	  id="m1"
-	  width="{(30 * $dayFactor) + 10}"
+	  width="{(30.51 * $dayFactor) + 10}"
 	  height="{$mainHeight}"
 	  x="{($shift * $dayFactor) + $left-side-panel}" 
 	  y="10" />
@@ -421,9 +433,8 @@
 	    select="$months//m[12]/@name" />
       </svg:text>
       </xsl:if>
-      
       <xsl:call-template name="month-block-mark" >
-	<xsl:with-param name="shift" select="$shift + 60" />
+	<xsl:with-param name="shift" select="$shift + 61" />
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
